@@ -1,6 +1,6 @@
 #include <windows.h>
 #include<cstdlib>
-#include<cstdio>
+#include<stdio.h>
 
 HWND textfield, textbox1, textbox2;
 char number[2];
@@ -15,31 +15,45 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 
 		textbox1 = CreateWindow("EDIT", "", WS_BORDER | WS_CHILD | WS_VISIBLE, 50, 50, 120, 25, hwnd, NULL, NULL, NULL);
 		textbox2 = CreateWindow("EDIT", "", WS_BORDER | WS_CHILD | WS_VISIBLE, 50, 80, 120, 25, hwnd, NULL, NULL, NULL);
-		CreateWindow("BUTTON", "+", WS_BORDER | WS_CHILD | WS_VISIBLE, 25, 110, 25, 25, hwnd, (HMENU) 1, NULL, NULL);
-		CreateWindow("BUTTON", "-", WS_BORDER | WS_CHILD | WS_VISIBLE, 50, 110, 25, 25, hwnd, (HMENU) 2, NULL, NULL);
-		CreateWindow("BUTTON", "*", WS_BORDER | WS_CHILD | WS_VISIBLE, 75, 110, 25, 25, hwnd, (HMENU) 3, NULL, NULL);
-		CreateWindow("BUTTON", "/", WS_BORDER | WS_CHILD | WS_VISIBLE, 100, 110, 25, 25, hwnd, (HMENU) 4, NULL, NULL);
+		CreateWindow("BUTTON", "+", WS_BORDER | WS_CHILD | WS_VISIBLE, 60, 110, 25, 25, hwnd, (HMENU) 1, NULL, NULL);
+		CreateWindow("BUTTON", "-", WS_BORDER | WS_CHILD | WS_VISIBLE, 85, 110, 25, 25, hwnd, (HMENU) 2, NULL, NULL);
+		CreateWindow("BUTTON", "*", WS_BORDER | WS_CHILD | WS_VISIBLE, 110, 110, 25, 25, hwnd, (HMENU) 3, NULL, NULL);
+		CreateWindow("BUTTON", "/", WS_BORDER | WS_CHILD | WS_VISIBLE, 135, 110, 25, 25, hwnd, (HMENU) 4, NULL, NULL);
 
 		break;
 
 		case WM_COMMAND:
-			switch(LOWORD(wParam))
-			{
-				case 1:
+		switch (LOWORD(wParam)) {
+			case 1:
+			case 2: 
+			case 3: 
+			case 4: 
+				{
 					char number[2][10];
-					double a,b,sum;
-					GetWindowText(textbox1, number[0],sizeof(number[0]));
-					GetWindowText(textbox2, number[1],sizeof(number[1]));
+					double a, b, result;
+					GetWindowText(textbox1, number[0], sizeof(number[0]));
+					GetWindowText(textbox2, number[1], sizeof(number[1]));
 					a = atof(number[0]);
 					b = atof(number[1]);
-					
-					sum = a+b;
-					char sumstr[20];
-					sprintf(sumstr, "%.2f", sum);
-					::MessageBox(hwnd, sumstr, "Result", MB_OK );
-					break;
-			}
-			break;
+	
+					if (LOWORD(wParam) == 1) result = a + b;
+					else if (LOWORD(wParam) == 2) result = a - b;
+					else if (LOWORD(wParam) == 3) result = a * b;
+					else if (LOWORD(wParam) == 4) {
+						if (b == 0) {
+							MessageBox(hwnd, "Error: Division by zero!", "Error", MB_OK | MB_ICONERROR);
+							break;
+						}
+						result = a / b;
+					}
+	
+					char resultStr[100];
+					sprintf(resultStr, "%f", result);
+					MessageBox(hwnd, resultStr, "Result", MB_OK);
+				}
+				break;
+		}
+		break;
 
 		/* Upon destruction, tell the main thread to stop */
 		case WM_DESTROY: {
@@ -78,7 +92,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return 0;
 	}
 
-	hwnd = CreateWindowEx(WS_EX_CLIENTEDGE,"WindowClass","My Calculator",WS_VISIBLE|WS_OVERLAPPEDWINDOW,
+	hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, "WindowClass", "My Calculator", 
+		WS_VISIBLE | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
 		CW_USEDEFAULT, /* x */
 		CW_USEDEFAULT, /* y */
 		250, /* width */
